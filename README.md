@@ -14,6 +14,8 @@ Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Si
 <img width="500" alt="2" src="https://user-images.githubusercontent.com/115300137/194768972-75d6f061-f4e6-4a9b-a0c9-ca611f2c8f90.PNG">
 
 ## Data and Training
-#### The TST-TUG dataset
+The TST-TUG dataset
+
+The STS dataset is protected by the Institutional Review Boards (IRB) of University of California, San Diego. Therefore, we can't upload the dataset.
 
 
