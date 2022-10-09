@@ -18,5 +18,5 @@ Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Si
 * The Asian-TUG dataset is a public dataset from [Nanyang Technological University](https://researchdata.ntu.edu.sg/dataset.xhtml?persistentId=doi:10.21979/N9/7VF22X)
 * The STS dataset is protected by the Institutional Review Boards (IRB) of University of California, San Diego. Therefore, we can't upload it here.
 
-We provide the collated skeletons and labels in .../data/xxx/raw for the two Timed-Up-and-Go datasets. You may use .../data/xxx_split.py to split the data for cross validation.
+We provide the collated skeleton data and labels in .../data/xxx/raw for the two Timed-Up-and-Go datasets. You may use .../data/xxx_split.py to split the data for cross validation.
 
