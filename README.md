@@ -44,3 +44,5 @@ The jittering (over-segmentation/fragmentation) problem is the discontinuity in 
   Example ```XI, XII, XIII, XIV``` demostrate how the Jitter score handles more chaotic predictions and the action order problem. In ```XI```, although the prediction is awful, each ground truth segment can still find a correponding segment in the prediction in a correct order. Therefore, XI can still receive the full 50% score from the action order penalty. In the following three cases, as the action order problem worsen, the score become lower and lower. In all four cases, as the jittering problem is terrible, nearly full jitter penalty is given, resulting in Jitter1 be approximately 0. The penalization curve can be controlled by the parameter μ if we want to allow more or less jittering problem.  
 <img width="924" alt="4" src="https://user-images.githubusercontent.com/115300137/194781473-07c6f678-7751-4fac-b1b0-121c746d2275.PNG">
 
+
+* Shift score 
