@@ -26,5 +26,6 @@ The corresponding spatial graph can be found at ```.../utils/graph.py```.
 
 * Training details can be found at ```train.py```.
 
-
+## Introduction to Jitter and Shift score
+Due to the page limit of the ICASSP conference, we provide more details of the two new metrics in the paper here.
 
