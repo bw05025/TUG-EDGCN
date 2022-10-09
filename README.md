@@ -6,6 +6,6 @@ Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Si
 * PyTorch: 1.12.1  
 * Numpy: 1.21.5  
 
-# Results Demo
+## Results Demo
 
 
