@@ -20,19 +20,19 @@ Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Si
 
 We provide the collated skeleton data and labels in ```.../data/xxx_TUG/raw``` for the two Timed-Up-and-Go datasets. You may use ```.../data/xxx_split.py``` to split the data for cross validation.
 
-The skeleton structure of the three datasets:  
+The skeleton structures of the three datasets:  
 <img width="500" alt="3" src="https://user-images.githubusercontent.com/115300137/194770587-09cedc31-703f-4bde-af79-bc0ce7dab287.PNG">  
-The corresponding spatial graph can be found at ```.../utils/graph.py```.
+The corresponding spatial graphs can be found at ```.../utils/graph.py```.
 
 * Training details can be found at ```train.py```.
 
 ## Introduction to Jitter and Shift score
-Due to the page limit of the ICASSP conference, in this page we provide more details of the two new metrics introduced the paper.  
+Due to the page limit of the ICASSP conference, in this page we provide more details of the two new metrics proposed in the paper. The code is available at ```.../utils/metrics.py```.
 
 * Jitter score  
-The jittering (over-segmentation/fragmentation) problem is the discontinuity in the predicted actions. The widely used Edit score can be used to measure the jittering problem but is only dependent on the number of jittered segments ```(I,II,III,VII)```. However, there are many other features of the jittered segments that can reflect the quality of predictions and the robustness of the networks. Our Jitter score aims to take these features into consideration and evaluate the jittering problem in a more accurate way. The examples below show how the Jitter score evaluates the jittering and action order problems in the predictions.
+The jittering (over-segmentation/fragmentation) problem is the discontinuity in the predicted actions. The widely used Edit score can be used to measure the jittering problem but is only dependent on the number of jittered segments ```(I,II,III,VII)```. However, there are many other features of the jittered segments that can reflect the quality of predictions and the robustness of the networks. Our Jitter score aims to take these features into consideration and evaluate the jittering problem in a more accurate way. The examples below show how the Jitter score evaluates the jittering and action order problems of the predictions.
 
-  The Jitter score is a weighted sum of an "action order penalty" and a "jitter penalty". In the following examples, "Jitter0.5" refers to the fact that the two penalties are equally weighted; "Jitter1" refers to only using the jitter penalty. For TUG and STS in our paper, there are few action order problems. Therefore, we apply Jitter1 to let the jitter score fully focus on the jittering problem. For some other action segmentation tasks, where action order may become a notable issue, an adjusted weight could be more helpful for the evaluation.
+  The Jitter score is a weighted sum of an "action order penalty" and a "jitter penalty". In the following examples, "Jitter0.5" refers to the fact that the two penalties are equally weighted; "Jitter1" refers to only using the jitter penalty. For TUG and STS in our paper, there are few action order problems. Therefore, we apply Jitter1 to let the jitter score fully focus on the jittering problem. For some other action segmentation tasks, where the action order may become a notable issue, an adjusted weight could be more helpful for the evaluation.
   
   The Jitter score takes the following features into consideration:  
   
