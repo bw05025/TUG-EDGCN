@@ -22,5 +22,9 @@ We provide the collated skeleton data and labels in ```.../data/xxx/raw``` for t
 
 The skeleton structure of the three datasets:  
 <img width="500" alt="3" src="https://user-images.githubusercontent.com/115300137/194770587-09cedc31-703f-4bde-af79-bc0ce7dab287.PNG">  
-The corresponding spatial graph can be found at ```.../utils/graph.py```
+The corresponding spatial graph can be found at ```.../utils/graph.py```.
+
+* Training details can be found at ```train.py```.
+
+
 
