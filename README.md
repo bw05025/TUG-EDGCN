@@ -6,6 +6,11 @@ Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Si
 * PyTorch: 1.12.1  
 * Numpy: 1.21.5  
 
-### Results Demo
+### Qualitative Results
+* Timed-Up-and-Go  
+<img width="722" alt="1" src="https://user-images.githubusercontent.com/115300137/194768960-a8ba4b1b-1fc9-418e-9515-9d59f43e7a54.PNG">
+
+* Fine-grained Sit-to-Stand
+<img width="719" alt="2" src="https://user-images.githubusercontent.com/115300137/194768972-75d6f061-f4e6-4a9b-a0c9-ca611f2c8f90.PNG">
 
 
