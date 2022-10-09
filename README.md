@@ -51,3 +51,9 @@ The jittering (over-segmentation/fragmentation) problem is the discontinuity in 
   The following examples demostrate how the Shift score outperforms the F1 score in evaluating the temporal shift problem.  
   Observe the orange segment in example ```I, II, III, IV```, as the temporal shift becomes increasingly large, the F1 score remains the same. Only after a certain threshold is met (50% IoU for F1@50) in ```V```, the F1 score drops. In contrast, the Shift score can capture these temporal shifts and gives larger penalty for larger shift. For multiple more shifts in example ```V, VI, VII```, the F1 score again fails to capture those changes, while the Shift score keeps giving larger penalties according to the magnitude of temporal shifts.  
   
+  Comparing ```I```, ```VIII``` and the ground truth, we can see that the temporal shift problems are not very large. However, in ```VIII``` there are serious jittering problems. As a result, the F1 score is impacted by the jittered segments and becomes lower. The Shift score, on the other hand, is much less susceptible to these jittered segments and can still produce an accurate result for the temporal shift problem.  
+  
+  ```IX, X``` show more complex cases. We can see that the Shift score can still produce reasonable evaluation for the temporal shift problem. In ```IX```, the yellow segment has a major temporal shift problem, resulting in a main impact in the score. The other segments are reasonably good so the overall score is not that bad. In ```X```, only the green segment contributes a little to the score, the prediction for the other segments are all excessively bad, thus resulting in a very low score.  
+<img width="924" alt="5" src="https://user-images.githubusercontent.com/115300137/194784567-a97362ad-53e0-45ab-9d75-ce5827156fa9.PNG">
+
+  
