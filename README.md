@@ -30,13 +30,16 @@ The corresponding spatial graph can be found at ```.../utils/graph.py```.
 Due to the page limit of the ICASSP conference, in this page we provide more details of the two new metrics introduced the paper.  
 
 * Jitter score  
-The jittering (over-segmentation/fragmentation) problem is the discontinuity in the predicted actions. The widely used Edit score can be used to measure the jittering problem but is only dependent on the number of jittered segments ```(I,II,III,VII)```. However, there are many other features of the jittered segments that can reflect the quality of prediction and the robustness of the network. Our Jitter score aims to take these features into consideration and evaluate the jittering problem in a more accurate way. The examples below shows how the Jitter score evaluate the jittering problem in the predictions.
+The jittering (over-segmentation/fragmentation) problem is the discontinuity in the predicted actions. The widely used Edit score can be used to measure the jittering problem but is only dependent on the number of jittered segments ```(I,II,III,VII)```. However, there are many other features of the jittered segments that can reflect the quality of prediction and the robustness of the network. Our Jitter score aims to take these features into consideration and evaluate the jittering problem in a more accurate way. The examples below shows how the Jitter score evaluate the jittering and action order problems in the predictions.
 
   The Jitter score is a weighted sum of an "action order penalty" and a "jitter penalty". In the following examples, "Jitter0.5" refers to the fact that the two penalties are equally weighted; "Jitter1" refers to only using the jitter penalty. For TUG and STS in our paper, there are few action order problems. Therefore, we apply Jitter1 to let the jitter score fully focus on the jittering problem. For some other action segmentation tasks, where action order may become a notable issue, an adjusted weight could be more helpful for the evaluation.
   
   The Jitter score takes the following features into consideration:  
   (1) Length of Jittered segments ```(III, IV)```: The longer the discontinuity in an action, the more penalty should be given.  
-  (2) The distance of the jittered segments to the action boundary ```(III, V)```: 
+  (2) The distance of the jittered segments to the action boundary ```(III, V)```: A frame near the action boundaries can look similar with both the previous action and the following action. Therefore, a jittered segment which is very close to the action boundary is somewhat "forgivable" and should receive less penalty. In contrary, when a frame which is far from the action boundary is classified into the adjacent action or some other actions, a large problem of whether the network can understand an action may be raised. In this case, a larger penalty should be given.
+  (3) The predicted action of the jittered segment ```(III, VI)```: Similar with (2), a frame classified into an action that is far from the nearby ground truth actions can indicate large problems with how well the network can understand actions. The penalty given to large distance and "irrelevant" action types can accumulate in the Jitter score.  
+  
+  
 
 
 
