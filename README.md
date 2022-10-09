@@ -27,5 +27,10 @@ The corresponding spatial graph can be found at ```.../utils/graph.py```.
 * Training details can be found at ```train.py```.
 
 ## Introduction to Jitter and Shift score
-Due to the page limit of the ICASSP conference, in this page we provide more details of the two new metrics introduced the paper.
+Due to the page limit of the ICASSP conference, in this page we provide more details of the two new metrics introduced the paper.  
+
+* Jitter score
+The jittering (over-segmentation/fragmentation) problem is the discontinuity in the predicted actions. The widely used Edit score can be used to measure the jittering problem but is only dependent on the number of jittered segments (I,II,III,VII). However, there are many other features of the jittered segments that can reflect the quality of prediction and the robustness of the network. Our Jitter score aims to take these features into consideration and evaluate the jittering problem in a more accurate way.  
+
+
 
