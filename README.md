@@ -16,6 +16,7 @@ Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Si
 ## Data and Training
 * The TST-TUG dataset is from [Ts Team, Università Politecnica delle Marche](https://www.tlc.dii.univpm.it/research/processing-of-rgbd-signals-for-the-analysis-of-activity-daily-life/kinect-based-dataset-for-motion-analysis) and is labeled and collated by us for machine learning applications.
 * The Asian-TUG dataset is from [Nanyang Technological University](https://researchdata.ntu.edu.sg/dataset.xhtml?persistentId=doi:10.21979/N9/7VF22X)
-* The STS dataset is protected by the Institutional Review Boards (IRB) of University of California, San Diego. Therefore, we can't upload the dataset.
+* The STS dataset is protected by the Institutional Review Boards (IRB) of University of California, San Diego. Therefore, we can't upload it here.
 
+We provide the collated skeletons and labels in .../data/xxx/raw for the two Timed-Up-and-Go datasets. You may use .../data/xxx_split.py to split the data for cross validation.
 
