@@ -29,8 +29,10 @@ The corresponding spatial graph can be found at ```.../utils/graph.py```.
 ## Introduction to Jitter and Shift score
 Due to the page limit of the ICASSP conference, in this page we provide more details of the two new metrics introduced the paper.  
 
-* Jitter score
+* Jitter score  
 The jittering (over-segmentation/fragmentation) problem is the discontinuity in the predicted actions. The widely used Edit score can be used to measure the jittering problem but is only dependent on the number of jittered segments (I,II,III,VII). However, there are many other features of the jittered segments that can reflect the quality of prediction and the robustness of the network. Our Jitter score aims to take these features into consideration and evaluate the jittering problem in a more accurate way.  
+
+The Jitter score is a weighted sum of an "action order penalty" and a "jitter penalty". In the following examples, "Jitter0.5" refers to the fact that the two penalties are equally weighted; "Jitter1" refers to only using the jitter penalty. For TUG and STS in our paper, there are few action order problems. Therefore, we apply Jitter1 to let the jitter score fully focus on the jittering problem. For some other action segmentation tasks, where action order may become a notable issue, an adjusted weight could be more helpful for the evaluation.
 
 
 
