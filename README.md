@@ -39,7 +39,7 @@ The jittering (over-segmentation/fragmentation) problem is the discontinuity in 
   (2) The distance of the jittered segments to the action boundary ```(III, V)```: A frame near the action boundaries can look similar with both the previous action and the following action. Therefore, a jittered segment which is very close to the action boundary is somewhat "forgivable" and should receive less penalty. In contrary, when a frame which is far from the action boundary is classified into the adjacent action or some other actions, a large problem of whether the network can understand an action may be raised. In this case, a larger penalty should be given.
   (3) The predicted action of the jittered segment ```(III, VI)```: Similar with (2), a frame classified into an action that is far from the nearby ground truth actions can indicate large problems with how well the network can understand actions. The penalty given to large distance and "irrelevant" action types can accumulate in the Jitter score.  
   
-  
+  In addition, ```(VII, VIII, IX, X)``` demostrate that the Jitter score can smartly distinguish which actions should be considered as "relevant" or "irrelevant" by an iterative algorithm. In ```(VII, VIII)```, the jittered segment is closer to the 3-4 action boundary. When the jittered segment is predicted as action 5 (or anything other than 3 or 4), the penalty is much larger. In ```(IX, X)```, the results are the opposite. 
 
 
 
