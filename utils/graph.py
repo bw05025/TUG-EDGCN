@@ -10,7 +10,7 @@ def edge2mat(link, num_node):
     return A
 
 
-def normalize_digraph(A):  # 除以每列的和
+def normalize_digraph(A):
     Dl = np.sum(A, 0)
     h, w = A.shape
     Dn = np.zeros((w, w))
