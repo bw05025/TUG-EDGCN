@@ -84,53 +84,53 @@ def test(args, val_loader, model, device):
         label_record = torch.zeros([3, 3500])
         fc_book = torch.zeros([3])
 
+    with torch.no_grad():
+        for i, (skeleton, labels, frames_count) in enumerate(val_loader):
+            skeleton = skeleton.to(device)
 
-    for i, (skeleton, labels, frames_count) in enumerate(val_loader):
-        skeleton = skeleton.to(device)
+            fc_record = frames_count.clone().long()
+            frames_count = torch.max(frames_count)
+            frames_count = frames_count - np.mod(frames_count, 8)
+            frames_count = frames_count.to(device).long()
+            fc_record[torch.argmax(fc_record)] = frames_count
 
-        fc_record = frames_count.clone().long()
-        frames_count = torch.max(frames_count)
-        frames_count = frames_count - np.mod(frames_count, 8)
-        frames_count = frames_count.to(device).long()
-        fc_record[torch.argmax(fc_record)] = frames_count
+            if args.dataset == 'STS':
+                if args.labels == 'fine':
+                    labels = labels[:, 0, 0:frames_count].to(device).long()
+                elif args.labels == 'coarse':
+                    labels = labels[:, 1, 0:frames_count].to(device).long()
+            else:
+                labels = labels.to(device).long()
+                labels = labels[:, 0:frames_count]
 
-        if args.dataset == 'STS':
-            if args.labels == 'fine':
-                labels = labels[:, 0, 0:frames_count].to(device).long()
-            elif args.labels == 'coarse':
-                labels = labels[:, 1, 0:frames_count].to(device).long()
-        else:
-            labels = labels.to(device).long()
-            labels = labels[:, 0:frames_count]
+            skeleton = skeleton[:, 0:frames_count, :, :]
 
-        skeleton = skeleton[:, 0:frames_count, :, :]
-
-        N, T, V, C = skeleton.size()
-        tcn_mask = torch.zeros([N, args.class_num, T])
-        for ex in range(0, N):
-            tcn_mask[ex, :, 0:fc_record[ex]] = torch.ones([args.class_num, fc_record[ex]])
-        tcn_mask = tcn_mask.to(device)
-
-
-        # Prediction
-        if args.network == 'mstcn' or args.network == 'sstcn' or args.network == 'msgcn':
-            output = model(skeleton, tcn_mask)
-            _, pred = torch.max(output[-1].data, 1)
-
-        else:
-            output, outputsoftmax = model(skeleton)
-            pred = torch.argmax(outputsoftmax, dim=2).long()
+            N, T, V, C = skeleton.size()
+            tcn_mask = torch.zeros([N, args.class_num, T])
+            for ex in range(0, N):
+                tcn_mask[ex, :, 0:fc_record[ex]] = torch.ones([args.class_num, fc_record[ex]])
+            tcn_mask = tcn_mask.to(device)
 
 
-        # Accuracy and recording the results
-        correct = pred.clone().eq_(labels).view(-1)
-        accuracy = float(torch.sum(correct) / len(correct))
+            # Prediction
+            if args.network == 'mstcn' or args.network == 'sstcn' or args.network == 'msgcn':
+                output = model(skeleton, tcn_mask)
+                _, pred = torch.max(output[-1].data, 1)
 
-        accmeter.append(accuracy)
+            else:
+                output, outputsoftmax = model(skeleton)
+                pred = torch.argmax(outputsoftmax, dim=2).long()
 
-        pred_record[i, 0:frames_count] = pred.clone()
-        label_record[i, 0:frames_count] = labels.clone()
-        fc_book[i] = frames_count
+
+            # Accuracy and recording the results
+            correct = pred.clone().eq_(labels).view(-1)
+            accuracy = float(torch.sum(correct) / len(correct))
+
+            accmeter.append(accuracy)
+
+            pred_record[i, 0:frames_count] = pred.clone()
+            label_record[i, 0:frames_count] = labels.clone()
+            fc_book[i] = frames_count
 
     acc_mean = np.mean(accmeter)
     acc_max = np.max(accmeter)
