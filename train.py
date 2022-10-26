@@ -206,95 +206,96 @@ def validate(args,val_loader,model,criterion,device,epoch,best_acc,fold):
     accmeter = []
     lossmeter = []
     model.eval().to(device)
+    
+    with torch.no_grad():
+        for i, (skeleton, labels, frames_count) in enumerate(val_loader):
 
-    for i, (skeleton, labels, frames_count) in enumerate(val_loader):
+            # data preprocessing
+            skeleton = skeleton.to(device)
+            fc_record = frames_count.clone().long()
+            frames_count = torch.max(frames_count)
+            frames_count = frames_count - np.mod(frames_count, 8)
+            frames_count = frames_count.to(device).long()
+            fc_record[torch.argmax(fc_record)] = frames_count
 
-        # data preprocessing
-        skeleton = skeleton.to(device)
-        fc_record = frames_count.clone().long()
-        frames_count = torch.max(frames_count)
-        frames_count = frames_count - np.mod(frames_count, 8)
-        frames_count = frames_count.to(device).long()
-        fc_record[torch.argmax(fc_record)] = frames_count
+            if args.dataset == 'STS':
+                if args.labels == 'fine':
+                    labels = labels[:, 0, 0:frames_count].to(device).long()
+                elif args.labels == 'coarse':
+                    labels = labels[:, 1, 0:frames_count].to(device).long()
+            else:
+                labels = labels.to(device).long()
+                labels = labels[:, 0:frames_count]
 
-        if args.dataset == 'STS':
-            if args.labels == 'fine':
-                labels = labels[:, 0, 0:frames_count].to(device).long()
-            elif args.labels == 'coarse':
-                labels = labels[:, 1, 0:frames_count].to(device).long()
-        else:
-            labels = labels.to(device).long()
-            labels = labels[:, 0:frames_count]
+            skeleton = skeleton[:, 0:frames_count, :, :]
 
-        skeleton = skeleton[:, 0:frames_count, :, :]
+            N, T, V, C = skeleton.size()
+            tcn_mask = torch.zeros([N, args.class_num, T])
+            for ex in range(0, N):
+                tcn_mask[ex, :, 0:fc_record[ex]] = torch.ones([args.class_num, fc_record[ex]])
+            tcn_mask = tcn_mask.to(device)
 
-        N, T, V, C = skeleton.size()
-        tcn_mask = torch.zeros([N, args.class_num, T])
-        for ex in range(0, N):
-            tcn_mask[ex, :, 0:fc_record[ex]] = torch.ones([args.class_num, fc_record[ex]])
-        tcn_mask = tcn_mask.to(device)
+            # model
+            if args.network == 'mstcn' or args.network == 'sstcn' or args.network == 'msgcn':
+                output = model(skeleton, tcn_mask)
+                _, pred = torch.max(output[-1].data, 1)
 
-        # model
-        if args.network == 'mstcn' or args.network == 'sstcn' or args.network == 'msgcn':
-            output = model(skeleton, tcn_mask)
-            _, pred = torch.max(output[-1].data, 1)
+            else:
+                output, outputsoftmax = model(skeleton)
+                pred = torch.argmax(outputsoftmax, dim=2).long()
 
-        else:
-            output, outputsoftmax = model(skeleton)
-            pred = torch.argmax(outputsoftmax, dim=2).long()
+            # accuracy
+            correct = pred.eq_(labels).view(-1)
+            accuracy = float(torch.sum(correct) / len(correct))
 
-        # accuracy
-        correct = pred.eq_(labels).view(-1)
-        accuracy = float(torch.sum(correct) / len(correct))
+            accmeter.append(accuracy)
+            acc_mean = np.mean(accmeter)
 
-        accmeter.append(accuracy)
-        acc_mean = np.mean(accmeter)
+            # penalization terms: DPP and more
+            if args.dataset == 'TST':
+                frame_dist_penalty = dist_penalty_tst(pred, labels).to(device)
+                # front_adj_penalty = adjcent_penalty_tst(pred,labels,'pre').to(device)
+                # back_adj_penalty = adjcent_penalty_tst(pred,labels,'sub').to(device)
+                # phase_penalty = phaseweight_penalty_tst(pred,args).to(device)
+            elif args.dataset == 'STS':
+                frame_dist_penalty = dist_penalty_sts(pred, labels, args).to(device)
+                # front_adj_penalty = adjcent_penalty_sts(pred,labels,'pre',args).to(device)
+                # back_adj_penalty = adjcent_penalty_sts(pred,labels,'sub',args).to(device)
+                # phase_penalty = phaseweight_penalty_sts(pred).to(device)
+            elif args.dataset == 'Asian':
+                frame_dist_penalty = dist_penalty_asian(pred, labels).to(device)
+                # front_adj_penalty = adjcent_penalty_asian(pred,labels,'pre').to(device)
+                # back_adj_penalty = adjcent_penalty_asian(pred,labels,'sub').to(device)
 
-        # penalization terms: DPP and more
-        if args.dataset == 'TST':
-            frame_dist_penalty = dist_penalty_tst(pred, labels).to(device)
-            # front_adj_penalty = adjcent_penalty_tst(pred,labels,'pre').to(device)
-            # back_adj_penalty = adjcent_penalty_tst(pred,labels,'sub').to(device)
-            # phase_penalty = phaseweight_penalty_tst(pred,args).to(device)
-        elif args.dataset == 'STS':
-            frame_dist_penalty = dist_penalty_sts(pred, labels, args).to(device)
-            # front_adj_penalty = adjcent_penalty_sts(pred,labels,'pre',args).to(device)
-            # back_adj_penalty = adjcent_penalty_sts(pred,labels,'sub',args).to(device)
-            # phase_penalty = phaseweight_penalty_sts(pred).to(device)
-        elif args.dataset == 'Asian':
-            frame_dist_penalty = dist_penalty_asian(pred, labels).to(device)
-            # front_adj_penalty = adjcent_penalty_asian(pred,labels,'pre').to(device)
-            # back_adj_penalty = adjcent_penalty_asian(pred,labels,'sub').to(device)
+            # loss
+            if args.network == 'mstcn' or args.network == 'sstcn' or args.network == 'msgcn':
+                loss = 0
+                MseLoss = torch.nn.MSELoss(reduction='none')
+                for p in output:
+                    loss += criterion(p.transpose(2, 1).contiguous().view(-1, args.class_num), labels.view(-1))
+                    loss += 0.15*torch.mean(torch.clamp(MseLoss(F.log_softmax(p[:, :, 1:], dim=1), F.log_softmax(p.detach()[:, :, :-1], dim=1)), min=0, max=16)*tcn_mask[:, :, 1:])
 
-        # loss
-        if args.network == 'mstcn' or args.network == 'sstcn' or args.network == 'msgcn':
-            loss = 0
-            MseLoss = torch.nn.MSELoss(reduction='none')
-            for p in output:
-                loss += criterion(p.transpose(2, 1).contiguous().view(-1, args.class_num), labels.view(-1))
-                loss += 0.15*torch.mean(torch.clamp(MseLoss(F.log_softmax(p[:, :, 1:], dim=1), F.log_softmax(p.detach()[:, :, :-1], dim=1)), min=0, max=16)*tcn_mask[:, :, 1:])
+            elif args.dataset == 'Asian':
+                MseLoss = torch.nn.MSELoss(reduction='none')
+                output = output.permute(0,2,1) #N,T,C -> N,C,T
+                celoss = criterion(output.transpose(2, 1).contiguous().view(-1, args.class_num), labels.view(-1))
+                mseloss = 0.15*torch.mean(torch.clamp(MseLoss(F.log_softmax(output[:, :, 1:], dim=1), F.log_softmax(output.detach()[:, :, :-1], dim=1)), min=0, max=16))
+                loss = celoss + mseloss
 
-        elif args.dataset == 'Asian':
-            MseLoss = torch.nn.MSELoss(reduction='none')
-            output = output.permute(0,2,1) #N,T,C -> N,C,T
-            celoss = criterion(output.transpose(2, 1).contiguous().view(-1, args.class_num), labels.view(-1))
-            mseloss = 0.15*torch.mean(torch.clamp(MseLoss(F.log_softmax(output[:, :, 1:], dim=1), F.log_softmax(output.detach()[:, :, :-1], dim=1)), min=0, max=16))
-            loss = celoss + mseloss
-
-        else:
-            output = output.permute(0, 2, 1)  # N,T,C -> N,C,T
-            CEloss = criterion(output, labels)
-            framewise_loss = torch.mul(CEloss, frame_dist_penalty)
-            loss = torch.mean(framewise_loss)
+            else:
+                output = output.permute(0, 2, 1)  # N,T,C -> N,C,T
+                CEloss = criterion(output, labels)
+                framewise_loss = torch.mul(CEloss, frame_dist_penalty)
+                loss = torch.mean(framewise_loss)
 
 
-        # loss recorder
-        lossmeter.append(loss.item())
-        loss_mean = np.mean(lossmeter)
+            # loss recorder
+            lossmeter.append(loss.item())
+            loss_mean = np.mean(lossmeter)
 
-        if (i+1) % args.printfreq == 0:
-            print('Epoch[%d]:iteration(%d/%d) Acc:%.4f(%.4f)' %
-                  (epoch,i+1,len(val_loader),accuracy,acc_mean))
+            if (i+1) % args.printfreq == 0:
+                print('Epoch[%d]:iteration(%d/%d) Acc:%.4f(%.4f)' %
+                      (epoch,i+1,len(val_loader),accuracy,acc_mean))
 
 
     print('Average Accuracy: %.4f' % (acc_mean))
