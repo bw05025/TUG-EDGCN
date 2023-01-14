@@ -50,7 +50,7 @@ The jittering (over-segmentation/fragmentation) problem is the discontinuity in 
 * Shift score  
   Another important problem in segmentation is the temporal shift. This problem reflects how well the network can locate each action. In fact, we find this problem influences the overall segmentation accuracy and prediction time error a lot more obviously than the jittering problem. The popular F1 score can be used to evaluate the temporal shift problem. However, constrained by its fixed-threshold design, it has three main drawbacks: (1) The F1 score will ignore small temporal shift; (2) For each segment, the result is binary, which will significantly damage the evaluation accuracy and (3) the jittering problem will also impact the result, which will produce noise in the evaluation of the temporal shift problem.  
   
-  The following examples demostrate how the Shift score outperforms the F1 score in evaluating the temporal shift problem.  
+  The following examples demonstrate how the Shift score outperforms the F1 score in evaluating the temporal shift problem.  
   
   Observe the orange segment in example ```I, II, III, IV```, as the temporal shift becomes increasingly large, the F1 score remains the same. Only after a certain threshold is met (50% IoU for F1@50) in ```V```, the F1 score drops. In contrast, the Shift score can capture these temporal shifts and gives larger penalty for larger shift. For multiple more shifts in example ```V, VI, VII```, the F1 score again fails to capture these changes, while the Shift score keeps giving larger penalties according to the magnitude of temporal shifts.  
   
