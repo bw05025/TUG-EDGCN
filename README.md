@@ -1,6 +1,6 @@
 # TUG-EDGCN
 
-Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Sit-to-Stand segmentation
+Encoder-Decoder Graph Convolutional Network for automatic Timed-Up-and-Go and Sit-to-Stand segmentation ([published on ICASSP 2023](https://ieeexplore.ieee.org/abstract/document/10095810)).
 
 * Python: 3.8  
 * PyTorch: 1.12.1  
